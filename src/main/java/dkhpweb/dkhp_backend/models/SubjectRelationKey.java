@@ -6,6 +6,6 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class SubjectRelationKey implements Serializable{
-	private Integer currSubjectId;
-	private Integer preSubjectId;
+	private String currSubjectId;
+	private String preSubjectId;
 }

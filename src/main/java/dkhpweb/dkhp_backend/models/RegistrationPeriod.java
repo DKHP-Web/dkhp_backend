@@ -9,13 +9,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Data
 @NoArgsConstructor
 public class RegistrationPeriod {
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Integer id;
+	@Id @UuidGenerator
+	private String id;
 
 	private LocalDateTime openTime;
 

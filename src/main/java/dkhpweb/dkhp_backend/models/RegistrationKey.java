@@ -4,6 +4,6 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class RegistrationKey {
-	private Integer studentId;
-	private Integer courseId;
+	private String studentId;
+	private String courseId;
 }

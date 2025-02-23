@@ -21,6 +21,7 @@ public class User {
 
 	private String name;
 
+	@Column(nullable=false, unique=true)
 	private String password;
 
 	@Enumerated(EnumType.STRING)
