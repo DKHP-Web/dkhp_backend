@@ -8,11 +8,13 @@ import dkhpweb.dkhp_backend.services.AuthService;
 import dkhpweb.dkhp_backend.utils.JwtUtil;
 import dkhpweb.dkhp_backend.utils.MailUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 @Service
@@ -23,6 +25,9 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final MailUtil mailUtil;
     SecureRandom random = new SecureRandom();
+
+    @Value("${otp.expiration}")
+    private Integer otpExpiration;
 
     @Override
     public ResLoginDto login(String email, String password) {
@@ -51,15 +56,16 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(()-> new BadRequestException("Email not found"));
 
         String otpCode= ""+(100_000 + random.nextInt(900_000));
-        var otpTime= LocalDateTime.now().plusMinutes(5);
+        var otpTime= LocalDateTime.now().plusMinutes(otpExpiration);
 
         user.setOtpCode(otpCode);
         user.setOtpTime(otpTime);
         userRepo.save(user);
 
-        mailUtil.sendMail(email, "[OTP Code]",
-                "Hi <b>"+user.getName()+"<b/>, here is your OTP Code: <b>"+otpCode+"<b/>" +
-                        ". Please enter it within 5 minutes");
+        String mailContent= MessageFormat.format(
+                "Here is your OTP Code: <b>{1}<b/>. Please enter it within {2} minutes",
+                otpCode, otpExpiration);
+        mailUtil.sendMail(email, "[OTP Code]", mailContent);
     }
 
     @Override

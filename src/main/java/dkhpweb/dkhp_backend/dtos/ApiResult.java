@@ -18,12 +18,12 @@ public class ApiResult<T> {
 
     private List<String> errors;
 
-    public static <T> ApiResult succeed(T result, Integer statusCode){
-        return new ApiResult(statusCode, true, result, null);
+    public static ApiResult succeedBodiless(){
+        return new ApiResult(200, true, null, null);
     }
 
     public static <T> ApiResult succeed(T result){
-        return succeed(result, 200);
+        return new ApiResult(200, true, result, null);
     }
 
     public static ApiResult failure(List<String> errors, Integer statusCode){

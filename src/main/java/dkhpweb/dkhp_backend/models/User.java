@@ -21,9 +21,6 @@ public class User {
 	@Column(nullable=false, unique=true)
 	private String email;
 
-	private String name;
-
-	@Column(nullable=false, unique=true)
 	private String password;
 
 	@Column(nullable = false)
@@ -34,6 +31,7 @@ public class User {
 
 	private LocalDateTime otpTime;
 
-	@Column(nullable = false)
 	private Boolean isBlocked;
+
+	private Boolean isActived;
 }

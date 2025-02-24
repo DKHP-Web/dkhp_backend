@@ -3,16 +3,11 @@ package dkhpweb.dkhp_backend.models;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
+import dkhpweb.dkhp_backend.models.enums.Language;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -29,16 +24,11 @@ public class Course {
 	@Id
 	private String id;
 
-	@Column(unique=true)
-	private String courseId;
-
-	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate beginDate;
 
-	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate endDate;
 
-	private String language;
+	private Language language;
 
 	private Integer beginShift;
 
@@ -59,12 +49,10 @@ public class Course {
 
 	private String lecturerName;
 
-	@ManyToOne
-	@JoinColumn(name="subjectId")
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Subject subject;
 
-	@ManyToOne
-	@JoinColumn(name="mainCourseId")
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Course mainCourse;
 
 	@OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
