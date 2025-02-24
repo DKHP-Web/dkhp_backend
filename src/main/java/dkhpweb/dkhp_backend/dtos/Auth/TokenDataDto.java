@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ResLoginDto {
-    private String accessToken;
+@AllArgsConstructor
+public class TokenDataDto {
+    private String userId;
 
-    private String refreshToken;
+    private UserRole role;
 }
