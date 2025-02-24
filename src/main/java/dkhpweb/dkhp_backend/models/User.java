@@ -1,6 +1,6 @@
 package dkhpweb.dkhp_backend.models;
 
-import dkhpweb.dkhp_backend.models.enums.Role;
+import dkhpweb.dkhp_backend.models.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +25,5 @@ public class User {
 	private String password;
 
 	@Enumerated(EnumType.STRING)
-	private Role role;
+	private UserRole role;
 }

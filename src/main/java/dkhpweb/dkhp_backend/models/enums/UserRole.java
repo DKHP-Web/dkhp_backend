@@ -1,6 +1,6 @@
 package dkhpweb.dkhp_backend.models.enums;
 
-public enum Role {
+public enum UserRole {
     ADMIN,
     STUDENT
 }
