@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -27,4 +29,11 @@ public class User {
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private UserRole role;
+
+	private String otpCode;
+
+	private LocalDateTime otpTime;
+
+	@Column(nullable = false)
+	private Boolean isBlocked;
 }

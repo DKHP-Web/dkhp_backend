@@ -12,6 +12,9 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -19,6 +22,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final MailUtil mailUtil;
+    SecureRandom random = new SecureRandom();
 
     @Override
     public ResLoginDto login(String email, String password) {
@@ -46,12 +50,32 @@ public class AuthServiceImpl implements AuthService {
         var user= userRepo.findByEmail(email)
                 .orElseThrow(()-> new BadRequestException("Email not found"));
 
+        String otpCode= ""+(100_000 + random.nextInt(900_000));
+        var otpTime= LocalDateTime.now().plusMinutes(5);
+
+        user.setOtpCode(otpCode);
+        user.setOtpTime(otpTime);
+        userRepo.save(user);
+
         mailUtil.sendMail(email, "[OTP Code]",
-                "Hi <b>"+user.getName()+"<b/>, here is your OTP Code: <b>"+"<b/>");
+                "Hi <b>"+user.getName()+"<b/>, here is your OTP Code: <b>"+otpCode+"<b/>" +
+                        ". Please enter it within 5 minutes");
     }
 
     @Override
-    public void resetPassword(String email, String otpCode) {
+    public void resetPassword(String email, String otpCode, String newPassword) {
+        var user= userRepo.findByEmail(email)
+                .orElseThrow(()-> new BadRequestException("Email not found"));
 
+        var now= LocalDateTime.now();
+        if(user.getOtpTime()==null || user.getOtpTime().isAfter(now))
+            throw new BadRequestException("OTP code is expired or incorrect");
+        if(user.getOtpCode()==null|| !user.getOtpCode().equals(otpCode))
+            throw new BadRequestException("OTP code is expired or incorrect");
+
+        user.setOtpTime(null);
+        user.setOtpCode(null);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepo.save(user);
     }
 }

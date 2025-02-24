@@ -7,5 +7,5 @@ public interface AuthService {
     ResLoginDto login(String email, String password);
     String refreshToken(String refreshToken);
     void sendOtpCode(String email);
-    void resetPassword(String email, String otpCode);
+    void resetPassword(String email, String otpCode, String newPassword);
 }
