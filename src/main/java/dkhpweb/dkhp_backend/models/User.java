@@ -26,8 +26,10 @@ public class User {
 
 	private Boolean isTempPassword;
 
+	@Column(columnDefinition = "TEXT")
 	private String refreshToken;
 
+	@Column(columnDefinition = "TEXT")
 	private String tempPasswordToken;
 
 	@Column(nullable = false)

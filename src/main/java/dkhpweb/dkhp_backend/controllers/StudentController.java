@@ -20,7 +20,7 @@ import java.util.List;
 public class StudentController {
     private final StudentService studentService;
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResult> addStudent(
             @RequestBody @Valid CreateStudentDto studentDto) {
@@ -28,15 +28,16 @@ public class StudentController {
         return ResponseEntity.ok(ApiResult.succeed(result));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/block/{studentId}")
     public ResponseEntity<ApiResult> blockStudent(
-           @PathVariable String studentId) {
-        studentService.blockStudent(studentId);
+           @PathVariable String studentId,
+           @RequestParam Boolean isBlocked) {
+        studentService.blockStudent(studentId, isBlocked);
         return ResponseEntity.ok(ApiResult.succeedBodiless());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResult> getStudents(
             @RequestParam Integer pageNum,

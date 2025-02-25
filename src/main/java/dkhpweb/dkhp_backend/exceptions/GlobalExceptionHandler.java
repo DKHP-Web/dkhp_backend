@@ -1,12 +1,12 @@
 package dkhpweb.dkhp_backend.exceptions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dkhpweb.dkhp_backend.dtos.ApiResult;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 @RestControllerAdvice

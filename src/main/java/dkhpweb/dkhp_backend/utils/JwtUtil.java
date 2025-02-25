@@ -34,10 +34,10 @@ public class JwtUtil {
 		Date expireDate = new Date(currentDate.getTime() + expiration*1000);
 
 		Map<String, String> claims= new HashMap();
+		claims.put("sub", user.getId());
 		claims.put("tokenType", tokenType.toString());
 		if(tokenType==TokenType.ACCESS_TOKEN) claims.put("role", user.getRole().toString());
 		String token= Jwts.builder()
-				.setSubject(user.getId())
 				.setClaims(claims)
 				.setIssuedAt(currentDate)
 				.setExpiration(expireDate)
@@ -66,11 +66,13 @@ public class JwtUtil {
 
 		var tokenData= new TokenDataDto();
 		tokenData.setUserId(claims.getSubject());
+		if(claims.containsKey("sub"))
+			tokenData.setUserId(claims.get("sub",String.class));
 		if(claims.containsKey("tokenType"))
-			tokenData.setTokenType(TokenType.valueOf(claims.get("tokenType").toString()));
+			tokenData.setTokenType(TokenType.valueOf(claims.get("tokenType", String.class)));
 		else throw new IllegalArgumentException("Invalid token");
 		if(claims.containsKey("role"))
-			tokenData.setRole(UserRole.valueOf(claims.get("role").toString()));
+			tokenData.setRole(UserRole.valueOf(claims.get("role", String.class)));
 
 		return tokenData;
 	}

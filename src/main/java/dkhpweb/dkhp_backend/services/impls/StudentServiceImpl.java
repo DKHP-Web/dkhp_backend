@@ -46,9 +46,9 @@ public class StudentServiceImpl implements StudentService {
         return modelMapper.map(savedStudent, ResStudentDto.class);
     }
 
-    public void blockStudent(String studentId){
+    public void blockStudent(String studentId, boolean isBlocked){
         var student= studentRepo.findById(studentId).orElseThrow(()-> new BadRequestException("Student not found"));
-        student.getUser().setIsBlocked(true);
+        student.getUser().setIsBlocked(isBlocked);
         studentRepo.save(student);
     }
 

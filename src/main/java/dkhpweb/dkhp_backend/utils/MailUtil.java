@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class MailUtil {
     private final JavaMailSenderImpl mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${mail.from-address}")
     String fromAddress;
 
     public void sendMail(String to, String subject, String content) {

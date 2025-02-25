@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface StudentService {
     ResStudentDto addStudent(CreateStudentDto studentDto);
-    void blockStudent(String studentId);
+    void blockStudent(String studentId, boolean isBlocked);
     ResStudentDto getStudentInfo();
     ResPageDto<List<ResStudentDto>> getStudents(Integer pageNum, Integer pageSize);
 }

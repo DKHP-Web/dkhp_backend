@@ -14,7 +14,6 @@ import dkhpweb.dkhp_backend.utils.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,8 +47,9 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         String mailContent= MessageFormat.format(
-                "Your temporary password is <b>{0}</b>. Please don't share it to any others",
-                userDto.getPassword());
+                "Hi {0}, your email acocunt ha sbeen added to our registration website.</br> " +
+                        "The temporary password is <b>{1}</b>. Please don't share it to any others",
+                userDto.getEmail(), userDto.getPassword());
         mailUtil.sendMail(userDto.getEmail(), "[Temporary Password]", mailContent);
 
         return user;
@@ -67,10 +67,18 @@ public class AuthServiceImpl implements AuthService {
         if(user.getIsTempPassword()!=null&&!user.getIsTempPassword()){
             String accessToken= jwtUtil.generateToken(user, TokenType.ACCESS_TOKEN);
             String refreshToken= jwtUtil.generateToken(user, TokenType.REFRESH_TOKEN);
+
+            user.setRefreshToken(refreshToken);
+            userRepo.save(user);
+
             return new ResLoginDto(accessToken, refreshToken, null);
         }
         else{
             String temPasswordToken= jwtUtil.generateToken(user, TokenType.TEMP_PASSWORD);
+
+            user.setTempPasswordToken(temPasswordToken);
+            userRepo.save(user);
+
             return new ResLoginDto(null, null,temPasswordToken);
         }
     }
@@ -83,6 +91,9 @@ public class AuthServiceImpl implements AuthService {
 
         var user= userRepo.findById(tokenData.getUserId())
                 .orElseThrow(()-> new AccessDeniedException("JWT token was exprired or incorrect"));
+        if(!refreshToken.equals(user.getRefreshToken()))
+            throw new AccessDeniedException("Refresh token is invalid");
+
         return jwtUtil.generateToken(user, TokenType.ACCESS_TOKEN);
     }
 
@@ -126,11 +137,15 @@ public class AuthServiceImpl implements AuthService {
     public void resetTempPassword(String tempPasswordToken, String newPassword) {
         var tokenData= jwtUtil.getDataFromToken(tempPasswordToken);
         if(tokenData.getTokenType()!=TokenType.TEMP_PASSWORD)
-            throw new AccessDeniedException("Accessed Denied");
+            throw new AccessDeniedException("Temp password token is invalid");
 
         var user= userRepo.findById(tokenData.getUserId())
-                .orElseThrow(()-> new AccessDeniedException("Accessed Denied"));
-        user.setPassword(newPassword);
+                .orElseThrow(()-> new AccessDeniedException("Temp password token is invalid"));
+        if(!tempPasswordToken.equals(user.getTempPasswordToken()))
+            throw new AccessDeniedException("Temp password token is invalid");
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setTempPasswordToken(null);
         user.setIsTempPassword(false);
         userRepo.save(user);
     }
