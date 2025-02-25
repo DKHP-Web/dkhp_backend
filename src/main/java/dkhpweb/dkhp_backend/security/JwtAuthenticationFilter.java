@@ -28,10 +28,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-		String rawJwtStr=request.getHeader(jwtConfig.header());
-		if(rawJwtStr!=null && rawJwtStr.startsWith(jwtConfig.prefix())) {
+		String bearerToken=request.getHeader(jwtConfig.header());
+		if(bearerToken!=null && bearerToken.startsWith(jwtConfig.prefix())) {
 			try {
-				handleToken(rawJwtStr);
+				handleToken(bearerToken);
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -41,14 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		chain.doFilter(request, response);
 	}
 
-	private void handleToken(String rawJwtStr) {
-		String token= rawJwtStr.substring(jwtConfig.prefix().length(),rawJwtStr.length());
-		if(StringUtils.hasText(token)) {
-			var claims= jwtUtil.getClaimsFromToken(token);
+	private void handleToken(String bearerToken) {
+		if(StringUtils.hasText(bearerToken)) {
+			var tokenData= jwtUtil.getDataFromToken(bearerToken);
 			var authToken = new UsernamePasswordAuthenticationToken(
-					claims.getSubject(),
+					tokenData.getUserId(),
 					null,
-					Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+claims.get("role").toString())));
+					Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+tokenData.getRole().toString())));
 			SecurityContextHolder.getContext().setAuthentication(authToken);
 		}
 	}

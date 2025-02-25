@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
@@ -15,7 +13,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @Builder
 public class Student {
-	@Id @UuidGenerator
+	@Id
 	private String id;
 
 	@Column(nullable = false)
@@ -26,8 +24,7 @@ public class Student {
 
 	private Integer admissionYear;
 
-	@OneToOne
-	@Cascade(CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(nullable=false)
 	private User user;
 }

@@ -17,7 +17,6 @@ public class Subject {
 	@Id
 	private String id;
 
-	@Column(unique=true)
 	private String name;
 
 	private Integer theoryCreditNumber;

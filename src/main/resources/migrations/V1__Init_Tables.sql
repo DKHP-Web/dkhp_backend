@@ -1,4 +1,4 @@
-create table admin (id varchar(255) not null, name varchar(255) not null, role tinyint not null check (role between 0 and 1), user_id varchar(255) not null, primary key (id)) engine=InnoDB;
+create table admin (id varchar(255) not null, name varchar(255), role tinyint not null check (role between 0 and 1), user_id varchar(255) not null, primary key (id)) engine=InnoDB;
 create table course (id varchar(255) not null, begin_date date, begin_shift integer, day_of_week integer, end_date date, end_shift integer, language tinyint check (language between 0 and 1), lecturer_name varchar(255), registered_number integer, room varchar(255), total_number integer, week_distance integer, main_course_id varchar(255), semester_id varchar(255), subject_id varchar(255), primary key (id)) engine=InnoDB;
 create table registration (course_id varchar(255) not null, student_id varchar(255) not null, primary key (course_id, student_id)) engine=InnoDB;
 create table registration_period (id varchar(255) not null, close_time datetime(6), open_time datetime(6), semester_id varchar(255), primary key (id)) engine=InnoDB;
@@ -6,13 +6,11 @@ create table semester (id varchar(255) not null, semester_num integer, year inte
 create table student (id varchar(255) not null, admission_year integer, falcuty_name varchar(255) not null, program varchar(255) not null, user_id varchar(255) not null, primary key (id)) engine=InnoDB;
 create table subject (id varchar(255) not null, name varchar(255), practice_credit_number integer, theory_credit_number integer, primary key (id)) engine=InnoDB;
 create table subject_relation (type tinyint check (type between 0 and 1), pre_subject_id varchar(255) not null, curr_subject_id varchar(255) not null, primary key (curr_subject_id, pre_subject_id)) engine=InnoDB;
-create table user (id varchar(255) not null, email varchar(255) not null, is_actived bit, is_blocked bit, otp_code varchar(255), otp_time datetime(6), password varchar(255) not null, role enum ('ADMIN','STUDENT') not null, primary key (id)) engine=InnoDB;
+create table user (id varchar(255) not null, email varchar(255) not null, is_actived bit, is_blocked bit, otp_code varchar(255), otp_time datetime(6), password varchar(255), role enum ('ADMIN','STUDENT') not null, primary key (id)) engine=InnoDB;
 
 alter table admin add constraint UKhawikyhwwfvbnog5byokutpff unique (user_id);
 alter table student add constraint UKbkix9btnoi1n917ll7bplkvg5 unique (user_id);
-alter table subject add constraint UKp1jgir6qcpmqnxt4a8105wsot unique (name);
 alter table user add constraint UKob8kqyqqgmefl0aco34akdtpe unique (email);
-alter table user add constraint UKkiqfjabx9puw3p1eg7kily8kg unique (password);
 alter table admin add constraint FK8ahhk8vqegfrt6pd1p9i03aej foreign key (user_id) references user (id);
 alter table course add constraint FKmbr38vd0ju01t2oqerncstlph foreign key (main_course_id) references course (id);
 alter table course add constraint FKlmyb73uymsfhqh374ndr3n4c0 foreign key (semester_id) references semester (id);

@@ -10,7 +10,6 @@ import dkhpweb.dkhp_backend.dtos.Auth.TokenDataDto;
 import dkhpweb.dkhp_backend.models.User;
 import dkhpweb.dkhp_backend.models.enums.UserRole;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -25,17 +24,21 @@ public class JwtUtil {
 	private final JwtConfig jwtConfig;
 
 	public String generateToken(User user, TokenType tokenType) {
-		String id= user.getId();
-
 		Date currentDate = new Date();
-		Long expiration= (tokenType==TokenType.ACCESS_TOKEN)?jwtConfig.accessTokenExpiration():jwtConfig.refreshTokenExpiration();
-		Date expireDate = new Date(currentDate.getTime() + expiration);
+		Long expiration= switch(tokenType){
+			case ACCESS_TOKEN -> jwtConfig.accessTokenExpiration();
+			case REFRESH_TOKEN -> jwtConfig.refreshTokenExpiration();
+			case TEMP_PASSWORD -> jwtConfig.tempPasswordTokenExpiration();
+			default -> throw new IllegalArgumentException("Unknown token type: " + tokenType);
+		};
+		Date expireDate = new Date(currentDate.getTime() + expiration*1000);
 
-		var claims= Map.of("tokenType", tokenType.toString());
+		Map<String, String> claims= new HashMap();
+		claims.put("tokenType", tokenType.toString());
 		if(tokenType==TokenType.ACCESS_TOKEN) claims.put("role", user.getRole().toString());
 		String token= Jwts.builder()
-				.setSubject(id)
-				.claims(claims)
+				.setSubject(user.getId())
+				.setClaims(claims)
 				.setIssuedAt(currentDate)
 				.setExpiration(expireDate)
 				.signWith(SignatureAlgorithm.HS512, jwtConfig.secret().getBytes())
@@ -43,9 +46,10 @@ public class JwtUtil {
 		return jwtConfig.prefix()+token;
 	}
 
-	public Claims getClaimsFromToken(String token) {
+	public Claims getClaimsFromToken(String bearerToken) {
 		try {
-			Claims claims = Jwts.parser()
+			String token= bearerToken.substring(jwtConfig.prefix().length());
+			Claims claims = Jwts.parserBuilder()
 					.setSigningKey(jwtConfig.secret().getBytes())
 					.build()
 					.parseClaimsJws(token)
@@ -57,19 +61,17 @@ public class JwtUtil {
 		}
 	}
 
-	public TokenDataDto getDataFromAccessToken(String accessToken){
-		var claims= getClaimsFromToken(accessToken);
-		if(!TokenType.ACCESS_TOKEN.toString().equals(claims.get("tokenType"))){
-			throw new AuthorizationDeniedException("Token is invalid");
-		}
-		return new TokenDataDto(claims.getSubject(), UserRole.valueOf(claims.get("role").toString()));
-	}
+	public TokenDataDto getDataFromToken(String bearerToken){
+		var claims= getClaimsFromToken(bearerToken);
 
-	public String getUserIdFromRefreshToken(String refreshToken){
-		var claims= getClaimsFromToken(refreshToken);
-		if(!TokenType.REFRESH_TOKEN.toString().equals(claims.get("tokenType"))){
-			throw new AuthorizationDeniedException("Token is invalid");
-		}
-		return claims.getSubject();
+		var tokenData= new TokenDataDto();
+		tokenData.setUserId(claims.getSubject());
+		if(claims.containsKey("tokenType"))
+			tokenData.setTokenType(TokenType.valueOf(claims.get("tokenType").toString()));
+		else throw new IllegalArgumentException("Invalid token");
+		if(claims.containsKey("role"))
+			tokenData.setRole(UserRole.valueOf(claims.get("role").toString()));
+
+		return tokenData;
 	}
 }

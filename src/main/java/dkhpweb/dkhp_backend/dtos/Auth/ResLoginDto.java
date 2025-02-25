@@ -12,4 +12,6 @@ public class ResLoginDto {
     private String accessToken;
 
     private String refreshToken;
+
+    private String tempPasswordToken;
 }

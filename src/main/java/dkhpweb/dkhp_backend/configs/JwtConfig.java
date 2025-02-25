@@ -8,5 +8,6 @@ public record JwtConfig(
         String prefix,
         String secret,
         Long accessTokenExpiration,
-        Long refreshTokenExpiration
+        Long refreshTokenExpiration,
+        Long tempPasswordTokenExpiration
 ){}

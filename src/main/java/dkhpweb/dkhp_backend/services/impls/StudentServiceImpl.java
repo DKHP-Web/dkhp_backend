@@ -10,6 +10,7 @@ import dkhpweb.dkhp_backend.models.User;
 import dkhpweb.dkhp_backend.models.enums.UserRole;
 import dkhpweb.dkhp_backend.repositories.StudentRepository;
 import dkhpweb.dkhp_backend.repositories.UserRepository;
+import dkhpweb.dkhp_backend.services.AuthService;
 import dkhpweb.dkhp_backend.services.StudentService;
 import dkhpweb.dkhp_backend.utils.AuthUtil;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +18,20 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepo;
     private final UserRepository userRepo;
+    private final AuthService authService;
     private final ModelMapper modelMapper;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public ResStudentDto addStudent(CreateStudentDto studentDto) {
         if(studentRepo.existsById(studentDto.getId()))
             throw new BadRequestException("StudentId"+studentDto.getId()+" already exists");
@@ -34,22 +39,8 @@ public class StudentServiceImpl implements StudentService {
             throw new BadRequestException("UserEmail"+studentDto.getUser().getEmail()+" already exists");
 
         Student student=modelMapper.map(studentDto, Student.class);
-
-        var userDto= studentDto.getUser();
-        var user= User.builder()
-                .email(userDto.getEmail())
-                .role(UserRole.STUDENT)
-                .isBlocked(false)
-                .build();
-        if(userDto.getPassword()!=null){
-            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-            user.setIsActived(true);
-        }
-        else {
-            user.setIsActived(false);
-        }
+        User user= authService.createUser(studentDto.getUser(), UserRole.STUDENT);
         student.setUser(user);
-
         var savedStudent=studentRepo.save(student);
 
         return modelMapper.map(savedStudent, ResStudentDto.class);
@@ -68,7 +59,7 @@ public class StudentServiceImpl implements StudentService {
         return modelMapper.map(student, ResStudentDto.class);
     }
 
-    public ResPageDto<ResStudentDto> getStudents(Integer pageNum, Integer pageSize){
+    public ResPageDto<List<ResStudentDto>> getStudents(Integer pageNum, Integer pageSize){
         var userId= AuthUtil.getUserId();
 
         PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
