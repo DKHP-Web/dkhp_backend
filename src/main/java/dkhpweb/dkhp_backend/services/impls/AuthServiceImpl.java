@@ -35,6 +35,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User createUser(CreateUserDto userDto, UserRole userRole) {
+        if(userRepo.existsByEmail(userDto.getEmail()))
+            throw new BadRequestException("The email already exists");
         var user= User.builder()
                 .email(userDto.getEmail())
                 .role(userRole)

@@ -82,7 +82,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDto> handleUnknownException(Exception ex){
         log.error("An unexpected exception occurred: {}", ex.getMessage());
-        var errorDto= new ErrorDto(HttpStatus.BAD_REQUEST.value(), "Bad Request", List.of("Unknown error"));
+        var errorDto= new ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR.value(),"Bad Request", List.of("Unknown error"));
         return ResponseEntity.ok(errorDto);
     }
 }
