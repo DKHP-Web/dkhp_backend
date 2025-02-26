@@ -1,6 +1,5 @@
 package dkhpweb.dkhp_backend.controllers;
 
-import dkhpweb.dkhp_backend.dtos.ApiResult;
 import dkhpweb.dkhp_backend.dtos.Auth.ReqLoginDto;
 import dkhpweb.dkhp_backend.dtos.Auth.ResLoginDto;
 import dkhpweb.dkhp_backend.dtos.Auth.ResetPasswordDto;
@@ -19,42 +18,41 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResult> login(
+    public ResponseEntity<ResLoginDto> login(
             @RequestBody @Valid ReqLoginDto loginDto){
-        ResLoginDto result= authService.login(loginDto.getEmail(), loginDto.getPassword());
-        return ResponseEntity.ok(ApiResult.succeed(result));
+        var result= authService.login(loginDto.getEmail(), loginDto.getPassword());
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResult> refreshToken(
+    public ResponseEntity<String> refreshToken(
             @RequestBody String refreshToken){
-        String result= authService.refreshToken(refreshToken);
-        return ResponseEntity.ok(ApiResult.succeed(result));
+        return ResponseEntity.ok(authService.refreshToken(refreshToken));
     }
 
     @PostMapping("/otp-code/{email}")
-    public ResponseEntity<ApiResult> sendOtpCode(
+    public ResponseEntity<Void> sendOtpCode(
             @PathVariable @Email String email){
         authService.sendOtpCode(email);
-        return ResponseEntity.ok(ApiResult.succeedBodiless());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResult> resetPassword(
+    public ResponseEntity<Void> resetPassword(
             @RequestBody @Valid ResetPasswordDto resetPasswordDto){
         authService.resetPassword(
                 resetPasswordDto.getEmail(),
                 resetPasswordDto.getOtpCode(),
                 resetPasswordDto.getNewPassword());
-        return ResponseEntity.ok(ApiResult.succeedBodiless());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/reset-temp-password")
-    public ResponseEntity<ApiResult> resetTempPassword(
+    public ResponseEntity<Void> resetTempPassword(
             @RequestBody @Valid ResetTempPasswordDto resetTempPasswordDto){
         authService.resetTempPassword(
                 resetTempPasswordDto.getTempPasswordToken(),
                 resetTempPasswordDto.getNewPassword());
-        return ResponseEntity.ok(ApiResult.succeedBodiless());
+        return ResponseEntity.noContent().build();
     }
 }

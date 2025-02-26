@@ -1,7 +1,5 @@
 package dkhpweb.dkhp_backend.controllers;
 
-import dkhpweb.dkhp_backend.constants.TokenType;
-import dkhpweb.dkhp_backend.dtos.ApiResult;
 import dkhpweb.dkhp_backend.dtos.ResPageDto;
 import dkhpweb.dkhp_backend.dtos.Student.CreateStudentDto;
 import dkhpweb.dkhp_backend.dtos.Student.ResStudentDto;
@@ -12,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/student")
 @RequiredArgsConstructor
@@ -22,35 +18,32 @@ public class StudentController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ApiResult> addStudent(
+    public ResponseEntity<ResStudentDto> addStudent(
             @RequestBody @Valid CreateStudentDto studentDto) {
-        ResStudentDto result=studentService.addStudent(studentDto);
-        return ResponseEntity.ok(ApiResult.succeed(result));
+        return ResponseEntity.ok(studentService.addStudent(studentDto));
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/block/{studentId}")
-    public ResponseEntity<ApiResult> blockStudent(
+    public ResponseEntity<Void> blockStudent(
            @PathVariable String studentId,
            @RequestParam Boolean isBlocked) {
         studentService.blockStudent(studentId, isBlocked);
-        return ResponseEntity.ok(ApiResult.succeedBodiless());
+        return ResponseEntity.noContent().build();
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResult> getStudents(
+    public ResponseEntity<ResPageDto> getStudents(
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize){
-        ResPageDto<List<ResStudentDto>> result=studentService.getStudents(pageNum,pageSize);
-        return ResponseEntity.ok(ApiResult.succeed(result));
+        return ResponseEntity.ok(studentService.getStudents(pageNum,pageSize));
     }
 
 
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/info")
-    public ResponseEntity<ApiResult> getStudentInfo(){
-        ResStudentDto result=studentService.getStudentInfo();
-        return ResponseEntity.ok(ApiResult.succeed(result));
+    public ResponseEntity<ResStudentDto> getStudentInfo(){
+        return ResponseEntity.ok(studentService.getStudentInfo());
     }
 }
